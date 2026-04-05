@@ -7,3 +7,5 @@ export { loginStateStore, LoginStateStore } from './src/main/ets/utils/LoginStat
 export { userStore, UserStore } from './src/main/ets/utils/UserStore';
 export type { UserInfo, LoginResponse } from './src/main/ets/model/UserModel';
 export { BookInfo, BookTag, BookContent, ChapterList, BookDetail, BookPageResponse } from './src/main/ets/model/BookModel';
+export type { BookHistory, ReadingHistoryItem } from './src/main/ets/model/HistoryModel';
+export { secondsToTimeStr, formatDate, getStartOfMonth, getEndOfMonth } from './src/main/ets/utils/TimeUtil';
