@@ -1,6 +1,6 @@
 import { BookInfo, BookTag, BookPageResponse } from '@ohos/common';
 import { getBookInfoList } from '../api/BookApi';
-import { getAllTag, changeBookTagApi } from '../api/FavoriteBookApi';
+import { getAllTag, changeBookTagApi, addFavoriteApi, delFavoriteApi } from '../api/FavoriteBookApi';
 import { Tags, TagSelector } from '@ohos/bookshelf';
 import { BookShelfConstants } from '../constants/BookShelfConstants';
 import { addHost } from '@ohos/common';
@@ -169,6 +169,18 @@ export struct BookShelfPage {
     return this.bookList.slice(0, this.pageSize);
   }
 
+  changeFavorite(book: BookInfo) {
+    if (book.favorite) {
+      delFavoriteApi(book.bookId).then(() => {
+        this.loadBookList();
+      });
+    } else {
+      addFavoriteApi(book.bookId).then(() => {
+        this.loadBookList();
+      });
+    }
+  }
+
   @Builder
   searchBar() {
     Row() {
@@ -251,24 +263,40 @@ export struct BookShelfPage {
   @Builder
   bookItem(book: BookInfo) {
     Column() {
-      Stack({ alignContent: Alignment.BottomEnd }) {
+      Stack() {
         Image(addHost(book.coverPic))
           .width('100%')
           .height('100%')
           .borderRadius(8)
           .objectFit(ImageFit.Cover)
-          .clip(true)
 
-        if (book.tagId !== -1) {
-          Text(this.getTagName(book.tagId))
-            .fontSize(10)
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-            .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-            .backgroundColor(BookShelfConstants.MAIN_COLOR)
-            .fontColor('#FFFFFF')
-            .borderRadius({ topRight: 8, bottomLeft: 8 })
+        Column() {
+          Blank()
+          Row() {
+            if (book.tagId !== -1) {
+              Text(this.getTagName(book.tagId))
+                .fontSize(10)
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+                .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+                .backgroundColor(BookShelfConstants.MAIN_COLOR)
+                .fontColor('#FFFFFF')
+                .borderRadius({ topRight: 8, bottomLeft: 8 })
+            }
+            Blank()
+            Text(book.favorite ? '★' : '☆')
+              .fontSize(20)
+              .fontColor(book.favorite ? BookShelfConstants.MAIN_COLOR : '#FFFFFF')
+              .onClick(() => {
+                this.changeFavorite(book);
+              })
+          }
+          .width('100%')
         }
+        .width('100%')
+        .height('100%')
+        .justifyContent(FlexAlign.SpaceBetween)
+        .padding(8)
       }
       .width('100%')
       .height('85%')
