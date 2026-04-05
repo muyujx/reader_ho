@@ -3,7 +3,7 @@ import { requestPost, UserInfo, LoginResponse } from '@ohos/common';
 interface LoginBody {
   account: string;
   password: string;
-  clientType: number;
+  clientType?: number;
 }
 
 export function loginApi(account: string, password: string): Promise<LoginResponse> {
@@ -21,8 +21,7 @@ export function loginApi(account: string, password: string): Promise<LoginRespon
 export function registerApi(account: string, password: string): Promise<LoginResponse> {
   const body: LoginBody = {
     account: account,
-    password: password,
-    clientType: 1
+    password: password
   };
   return requestPost<LoginResponse>({
     url: '/api/register',

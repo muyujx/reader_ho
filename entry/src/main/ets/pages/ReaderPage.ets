@@ -1,6 +1,8 @@
 import router from '@ohos.router';
 import { addHost } from '@ohos/common';
 import { getBookDetail, getBookPageList, getContents, PageItem, BookInfo, ContentsItem } from '@ohos/bookshelf';
+import display from '@ohos.display';
+import web_webview from '@ohos.web.webview';
 
 const COVER_PAGE = 1;
 const FIRST_PAGE = 2;
@@ -31,8 +33,17 @@ export struct ReaderPage {
   @State isSwiping: boolean = false;
   @State contents: ContentsItem[] = [];
   @State curChapterIndex: number = -1;
+  private screenWidth: number = 360;
+  private webController: web_webview.WebviewController = new web_webview.WebviewController();
+  @State webSrc: string = '';
 
   aboutToAppear() {
+    try {
+      const displayData = display.getDefaultDisplaySync();
+      this.screenWidth = displayData.width;
+    } catch (e) {
+      this.screenWidth = 360;
+    }
     const params = router.getParams() as Record<string, number>;
     if (params && params.bookId) {
       this.bookId = params.bookId;
@@ -67,16 +78,15 @@ export struct ReaderPage {
     if (!html) {
       return '';
     }
-    const viewport = `<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">`;
-    const style = `<style>body,html{margin:0;padding:0;width:100%;box-sizing:border-box;}img{max-width:100%;}</style>`;
-    let styledHtml = viewport + style + html;
-    styledHtml = styledHtml.replace(/src="([^"]*)"/g, (match: string, src: string) => {
-      if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
-        return match;
+    const scale = this.screenWidth / 660;
+    const head = `<meta name="viewport" content="width=660"><script>document.addEventListener('touchmove',function(e){e.preventDefault();},{passive:false});</script><style>body{margin:0;padding:0;width:660px;-webkit-transform:scale(${scale.toFixed(2)});-webkit-transform-origin:0 0;transform:scale(${scale.toFixed(2)});transform-origin:0 0;overflow-x:hidden;}</style>`;
+    let result = `<!DOCTYPE html><html><head>${head}</head><body>${html}</body></html>`;
+    return result.replace(/src="([^"]*)"/g, (match: string, src: string) => {
+      if (!src.startsWith('data:') && !src.startsWith('http://') && !src.startsWith('https://')) {
+        return `src="${addHost(src)}"`;
       }
-      return `src="${addHost(src)}"`;
+      return match;
     });
-    return styledHtml;
   }
 
   async loadPage(page: number) {
@@ -108,7 +118,16 @@ export struct ReaderPage {
       if (pages && pages.length > 0) {
         this.curPageItem = pages[0];
         this.currentPage = page;
+        const newSrc = `data:text/html,${encodeURIComponent(this.formatHtmlContent(this.curPageItem.content))}`;
+        this.webSrc = newSrc;
         this.updateCurChapter();
+        setTimeout(() => {
+          try {
+            this.webController.loadUrl(newSrc);
+          } catch (e) {
+            console.error('loadUrl error:', JSON.stringify(e));
+          }
+        }, 50);
       }
     } catch (err) {
       console.error('loadPage error:', JSON.stringify(err));
@@ -142,13 +161,6 @@ export struct ReaderPage {
   goToChapter(item: ContentsItem) {
     this.loadPage(item.startPage);
     this.showContents = false;
-  }
-
-  goToPage(pageStr: string) {
-    const page = parseInt(pageStr);
-    if (!isNaN(page)) {
-      this.loadPage(page);
-    }
   }
 
   handleTouchStart(event: TouchEvent) {
@@ -226,9 +238,15 @@ export struct ReaderPage {
     Column() {
       this.topBar()
 
-      RichText(this.formatHtmlContent(this.curPageItem.content))
-        .constraintSize({ minWidth: '100%', maxWidth: '100%' })
-        .padding({ left: 16, right: 16, bottom: 16 })
+      Web({
+        src: this.webSrc,
+        controller: this.webController
+      })
+        .width('100%')
+        .layoutWeight(1)
+        .onControllerAttached(() => {
+          this.webController.setScrollable(false);
+        })
     }
     .width('100%')
     .height('100%')

@@ -45,7 +45,7 @@ struct LoginPage {
         .backgroundColor('#FFFFFF')
         .borderRadius(8)
         .onChange((value: string) => {
-          this.account = value.replace(this.accountPattern, '');
+          this.account = value;
         })
 
       TextInput({ placeholder: '密码', text: this.password })
@@ -55,7 +55,7 @@ struct LoginPage {
         .backgroundColor('#FFFFFF')
         .borderRadius(8)
         .onChange((value: string) => {
-          this.password = value.replace(this.passwordPattern, '');
+          this.password = value;
         })
 
       if (this.errorMessage !== '') {
@@ -104,7 +104,7 @@ struct LoginPage {
         .backgroundColor('#FFFFFF')
         .borderRadius(8)
         .onChange((value: string) => {
-          this.regAccount = value.replace(this.accountPattern, '');
+          this.regAccount = value;
         })
 
       TextInput({ placeholder: '密码', text: this.regPassword })
@@ -114,7 +114,7 @@ struct LoginPage {
         .backgroundColor('#FFFFFF')
         .borderRadius(8)
         .onChange((value: string) => {
-          this.regPassword = value.replace(this.passwordPattern, '');
+          this.regPassword = value;
         })
 
       TextInput({ placeholder: '确认密码', text: this.regPasswordConfirm })
@@ -124,7 +124,7 @@ struct LoginPage {
         .backgroundColor('#FFFFFF')
         .borderRadius(8)
         .onChange((value: string) => {
-          this.regPasswordConfirm = value.replace(this.passwordPattern, '');
+          this.regPasswordConfirm = value;
         })
 
       if (this.errorMessage !== '') {
@@ -160,19 +160,21 @@ struct LoginPage {
   }
 
   checkAccountPassword(account: string, pwd: string): boolean {
-    if (account.length === 0) {
+    const filteredAccount = account.replace(this.accountPattern, '');
+    const filteredPwd = pwd.replace(this.passwordPattern, '');
+    if (filteredAccount.length === 0) {
       this.errorMessage = '账号不能为空';
       return true;
     }
-    if (account.length < 6) {
+    if (filteredAccount.length < 6) {
       this.errorMessage = '账号长度必须在 6-30 位';
       return true;
     }
-    if (pwd.length === 0) {
+    if (filteredPwd.length === 0) {
       this.errorMessage = '密码不能为空';
       return true;
     }
-    if (pwd.length < 8) {
+    if (filteredPwd.length < 8) {
       this.errorMessage = '密码长度必须在 8-30 位';
       return true;
     }
@@ -185,9 +187,13 @@ struct LoginPage {
     }
     this.isLoading = true;
     this.errorMessage = '';
+    const filteredAccount = this.account.replace(this.accountPattern, '');
+    const filteredPassword = this.password.replace(this.passwordPattern, '');
+    this.account = filteredAccount;
+    this.password = filteredPassword;
 
     try {
-      const res = await loginApi(this.account, this.password);
+      const res = await loginApi(filteredAccount, filteredPassword);
       await userStore.saveUser({
         userId: res.userId,
         role: res.role,
@@ -213,10 +219,21 @@ struct LoginPage {
     }
     this.isLoading = true;
     this.errorMessage = '';
+    const filteredAccount = this.regAccount.replace(this.accountPattern, '');
+    const filteredPassword = this.regPassword.replace(this.passwordPattern, '');
+    this.regAccount = filteredAccount;
+    this.regPassword = filteredPassword;
 
     try {
-      await registerApi(this.regAccount, this.regPassword);
-      await this.doLogin();
+      await registerApi(filteredAccount, filteredPassword);
+      const res = await loginApi(filteredAccount, filteredPassword);
+      await userStore.saveUser({
+        userId: res.userId,
+        role: res.role,
+        account: res.account
+      });
+      await loginStateStore.setLoginSuccess(true);
+      router.replaceUrl({ url: 'pages/TabPage' });
     } catch (err) {
       this.errorMessage = '注册失败';
       console.error('Register error:', JSON.stringify(err));
