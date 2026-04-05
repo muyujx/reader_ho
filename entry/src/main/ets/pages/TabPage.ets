@@ -36,12 +36,11 @@ struct TabPage {
   }
 
   @Builder
-  TabBuilder(icon: ResourceStr, title: string, index: number) {
+  TabBuilder(normalIcon: ResourceStr, selectedIcon: ResourceStr, title: string, index: number) {
     Column({ space: TabConstants.PUBLIC_SPACE }) {
-      Image(icon)
+      Image(this.currentTabIndex === index ? selectedIcon : normalIcon)
         .width(TabConstants.TAB_ICON_WIDTH)
         .height(TabConstants.TAB_ICON_HEIGHT)
-        .fillColor(this.currentTabIndex === index ? TabConstants.SELE_COLOR : TabConstants.DEF_COLOR)
       Text(title)
         .fontSize(12)
         .fontColor(this.currentTabIndex === index ? TabConstants.SELE_COLOR : TabConstants.DEF_COLOR)
@@ -70,22 +69,22 @@ struct TabPage {
         TabContent() {
           BookShelfPage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_bookshelf'), '书架', 0))
+        .tabBar(this.TabBuilder($r('app.media.ic_bookshelf'), $r('app.media.ic_bookshelf_selected'), '书架', 0))
 
         TabContent() {
           DiscoverPage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_discover'), '收藏', 1))
+        .tabBar(this.TabBuilder($r('app.media.ic_favorite'), $r('app.media.ic_favorite_selected'), '收藏', 1))
 
         TabContent() {
           HistoryPage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_history'), '历史', 2))
+        .tabBar(this.TabBuilder($r('app.media.ic_history'), $r('app.media.ic_history_selected'), '历史', 2))
 
         TabContent() {
           MinePage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_mine'), '我的', 3))
+        .tabBar(this.TabBuilder($r('app.media.ic_mine'), $r('app.media.ic_mine_selected'), '我的', 3))
       }
       .barHeight(TabConstants.TAB_BAR_HEIGHT)
       .onChange((index: number) => {

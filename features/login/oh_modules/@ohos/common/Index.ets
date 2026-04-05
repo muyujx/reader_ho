@@ -7,6 +7,7 @@ export { loginStateStore, LoginStateStore } from './src/main/ets/utils/LoginStat
 export { userStore, UserStore } from './src/main/ets/utils/UserStore';
 export { serverConfigStore, ServerConfigStore } from './src/main/ets/utils/ServerConfigStore';
 export { getServerHost, setServerHost, getFullUrl } from './src/main/ets/utils/ConfigUtil';
+export { imageCacheUtil, ImageCacheUtil } from './src/main/ets/utils/ImageCacheUtil';
 export type { UserInfo, LoginResponse } from './src/main/ets/model/UserModel';
 export { BookInfo, BookTag, BookContent, ChapterList, BookDetail, BookPageResponse } from './src/main/ets/model/BookModel';
 export type { BookHistory, ReadingHistoryItem } from './src/main/ets/model/HistoryModel';
