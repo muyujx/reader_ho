@@ -253,21 +253,29 @@ export struct FavoritePage {
   @Builder
   bookList() {
     Column() {
-      if (!this.favoriteList || this.favoriteList.length === 0) {
-        this.bookListEmpty()
-      } else {
-        List() {
-          ForEach(this.favoriteList, (book: FavoriteBookInfo) => {
-            ListItem() {
-              this.bookItem(book)
+      Refresh({ refreshing: this.isRefreshing }) {
+        Column() {
+          if (!this.favoriteList || this.favoriteList.length === 0) {
+            this.bookListEmpty()
+          } else {
+            List() {
+              ForEach(this.favoriteList, (book: FavoriteBookInfo) => {
+                ListItem() {
+                  this.bookItem(book)
+                }
+              })
             }
-          })
+            .width('100%')
+            .height('100%')
+            .padding({ left: 12, right: 12, top: 8 })
+            .backgroundColor('#F5F5F5')
+          }
         }
         .width('100%')
-        .height('100%')
-        .padding({ left: 12, right: 12, top: 8 })
-        .backgroundColor('#F5F5F5')
       }
+      .onRefreshing(() => {
+        this.onRefresh();
+      })
     }
     .width('100%')
     .layoutWeight(1)

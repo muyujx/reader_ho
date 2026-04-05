@@ -263,40 +263,47 @@ export struct BookShelfPage {
   @Builder
   bookItem(book: BookInfo) {
     Column() {
-      Stack() {
+      RelativeContainer() {
         Image(addHost(book.coverPic))
           .width('100%')
           .height('100%')
           .borderRadius(8)
           .objectFit(ImageFit.Cover)
+          .id('cover')
+          .alignRules({
+            top: { anchor: '__container__', align: VerticalAlign.Top },
+            bottom: { anchor: '__container__', align: VerticalAlign.Bottom },
+            left: { anchor: '__container__', align: HorizontalAlign.Start },
+            right: { anchor: '__container__', align: HorizontalAlign.End }
+          })
 
-        Column() {
-          Blank()
-          Row() {
-            if (book.tagId !== -1) {
-              Text(this.getTagName(book.tagId))
-                .fontSize(10)
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
-                .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                .backgroundColor(BookShelfConstants.MAIN_COLOR)
-                .fontColor('#FFFFFF')
-                .borderRadius({ topRight: 8, bottomLeft: 8 })
-            }
-            Blank()
-            Text(book.favorite ? '★' : '☆')
-              .fontSize(20)
-              .fontColor(book.favorite ? BookShelfConstants.MAIN_COLOR : '#FFFFFF')
-              .onClick(() => {
-                this.changeFavorite(book);
-              })
+        Row() {
+          if (book.tagId !== -1) {
+            Text(this.getTagName(book.tagId))
+              .fontSize(10)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+              .backgroundColor(BookShelfConstants.MAIN_COLOR)
+              .fontColor('#FFFFFF')
+              .borderRadius({ topRight: 8, bottomLeft: 8 })
           }
-          .width('100%')
+
+          Blank()
+
+          Text(book.favorite ? '★' : '☆')
+            .fontSize(20)
+            .fontColor(BookShelfConstants.MAIN_COLOR)
+            .onClick(() => {
+              this.changeFavorite(book);
+            })
         }
-        .width('100%')
-        .height('100%')
-        .justifyContent(FlexAlign.SpaceBetween)
-        .padding(8)
+        .id('bottomBar')
+        .alignRules({
+          bottom: { anchor: '__container__', align: VerticalAlign.Bottom },
+          left: { anchor: '__container__', align: HorizontalAlign.Start },
+          right: { anchor: '__container__', align: HorizontalAlign.End }
+        })
       }
       .width('100%')
       .height('85%')
