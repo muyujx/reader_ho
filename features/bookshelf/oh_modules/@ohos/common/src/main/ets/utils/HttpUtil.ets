@@ -15,6 +15,15 @@ export interface ResponseModel<T> {
   message: string;
 }
 
+export class NeedLoginError extends Error {
+  code: number;
+  constructor(code: number, message: string = 'need login') {
+    super(message);
+    this.code = code;
+    this.name = 'NeedLoginError';
+  }
+}
+
 export async function requestPost<T>(param: RequestParam): Promise<T> {
   const path = param.url.startsWith('/') ? param.url : '/' + param.url;
   const url = CommonConstants.SERVER_HOST + path;
@@ -43,21 +52,21 @@ export async function requestPost<T>(param: RequestParam): Promise<T> {
     console.info('HttpUtil response result:', responseStr);
     
     const responseModel: ResponseModel<T> = JSON.parse(responseStr);
-    
+
     console.info('HttpUtil responseModel:', JSON.stringify(responseModel));
-    
+
     if (responseModel.code === 100) {
       loginStateStore.setNeedLogin(true);
-      return Promise.reject(new Error('need login'));
+      return Promise.reject(new NeedLoginError(responseModel.code, responseModel.message));
     }
-    
+
     if (responseModel.code !== 0) {
       return Promise.reject(new Error(responseModel.message));
     }
-    
+
     const headerStr = JSON.stringify(response.header);
     console.info('HttpUtil headerStr:', headerStr);
-    
+
     const setCookieMatch = headerStr.match(/\[\\?"(sessionId=[^"\\]+)\\?"\]/);
     if (setCookieMatch && setCookieMatch[1]) {
       const cookiePart = setCookieMatch[1];
@@ -73,7 +82,7 @@ export async function requestPost<T>(param: RequestParam): Promise<T> {
         console.info('HttpUtil setCookie not found in header');
       }
     }
-    
+
     return responseModel.data;
   } catch (error) {
     console.error('HttpUtil requestPost error:', JSON.stringify(error));
