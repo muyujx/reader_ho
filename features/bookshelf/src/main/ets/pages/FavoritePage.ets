@@ -329,7 +329,9 @@ export struct FavoritePage {
   build() {
     Column() {
       this.bookList()
-      this.pagination()
+      if (this.favoriteList && this.favoriteList.length > 0) {
+        this.pagination()
+      }
     }
     .width('100%')
     .height('100%')
