@@ -1,5 +1,7 @@
 import { http } from '@kit.NetworkKit';
 import { SERVER_HOST } from '../constants/Config';
+import { loginStateStore } from './LoginState';
+import { cookieStore } from './CookieStore';
 
 export interface ResponseModel<T> {
   data: T;
@@ -54,9 +56,15 @@ export async function requestPost<T>(param: RequestParam): Promise<T> {
   const httpRequest = http.createHttp();
   
   try {
+    await cookieStore.init();
+    const storedCookie = cookieStore.getCookie();
+    
     const response = await httpRequest.request(url, {
       method: http.RequestMethod.POST,
-      header: { 'Content-Type': 'application/json' },
+      header: {
+        'Content-Type': 'application/json',
+        'Cookie': storedCookie
+      },
       extraData: param.body ? JSON.stringify(param.body) : undefined
     });
     
@@ -69,8 +77,32 @@ export async function requestPost<T>(param: RequestParam): Promise<T> {
     
     console.info('HttpUtil responseModel:', JSON.stringify(responseModel));
     
+    if (responseModel.code === 100) {
+      loginStateStore.setNeedLogin(true);
+      return Promise.reject(new Error('need login'));
+    }
+    
     if (responseModel.code !== 0) {
       return Promise.reject(new Error(responseModel.message));
+    }
+    
+    const headerStr = JSON.stringify(response.header);
+    console.info('HttpUtil headerStr:', headerStr);
+    
+    const setCookieMatch = headerStr.match(/\[\\?"(sessionId=[^"\\]+)\\?"\]/);
+    if (setCookieMatch && setCookieMatch[1]) {
+      const cookiePart = setCookieMatch[1];
+      console.info('HttpUtil setCookie found:', cookiePart);
+      await cookieStore.setCookie(cookiePart);
+    } else {
+      const simpleMatch = headerStr.match(/sessionId=([^;\\]+)/);
+      if (simpleMatch && simpleMatch[1]) {
+        const cookiePart = simpleMatch[1];
+        console.info('HttpUtil setCookie found (simple):', cookiePart);
+        await cookieStore.setCookie(cookiePart);
+      } else {
+        console.info('HttpUtil setCookie not found in header');
+      }
     }
     
     return responseModel.data;
@@ -94,8 +126,14 @@ export async function requestGet<T>(param: RequestParam): Promise<T> {
   const httpRequest = http.createHttp();
   
   try {
+    await cookieStore.init();
+    const storedCookie = cookieStore.getCookie();
+    
     const response = await httpRequest.request(url, {
-      method: http.RequestMethod.GET
+      method: http.RequestMethod.GET,
+      header: {
+        'Cookie': storedCookie
+      }
     });
     
     console.info('HttpUtil response:', JSON.stringify(response));
@@ -105,8 +143,32 @@ export async function requestGet<T>(param: RequestParam): Promise<T> {
     
     const responseModel: ResponseModel<T> = JSON.parse(responseStr);
     
+    if (responseModel.code === 100) {
+      loginStateStore.setNeedLogin(true);
+      return Promise.reject(new Error('need login'));
+    }
+    
     if (responseModel.code !== 0) {
       return Promise.reject(new Error(responseModel.message));
+    }
+    
+    const headerStr = JSON.stringify(response.header);
+    console.info('HttpUtil headerStr:', headerStr);
+    
+    const setCookieMatch = headerStr.match(/\[\\?"(sessionId=[^"\\]+)\\?"\]/);
+    if (setCookieMatch && setCookieMatch[1]) {
+      const cookiePart = setCookieMatch[1];
+      console.info('HttpUtil setCookie found:', cookiePart);
+      await cookieStore.setCookie(cookiePart);
+    } else {
+      const simpleMatch = headerStr.match(/sessionId=([^;\\]+)/);
+      if (simpleMatch && simpleMatch[1]) {
+        const cookiePart = simpleMatch[1];
+        console.info('HttpUtil setCookie found (simple):', cookiePart);
+        await cookieStore.setCookie(cookiePart);
+      } else {
+        console.info('HttpUtil setCookie not found in header');
+      }
     }
     
     return responseModel.data;

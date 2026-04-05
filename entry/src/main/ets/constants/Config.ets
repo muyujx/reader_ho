@@ -10,3 +10,16 @@ export const API_FAVORITE_ADD = '/api/favorite/add';
 export const API_FAVORITE_DELETE = '/api/favorite/delete';
 export const API_BOOK_TAG_GET_ALL = '/api/book/tag/get/all';
 export const API_BOOK_TAG_CHANGE = '/api/book/tag/change';
+
+export function addHost(path: string): string {
+  if (path.includes('://')) {
+    return path;
+  }
+  if (!path.startsWith('/')) {
+    path = '/' + path;
+  }
+  if (DEV_MOD && path.startsWith('/api')) {
+    return SERVER_HOST + path.substring('/api'.length);
+  }
+  return SERVER_HOST + path;
+}
