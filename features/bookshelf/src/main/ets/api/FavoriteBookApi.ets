@@ -1,11 +1,34 @@
 import { requestPost, requestGet, BookTag } from '@ohos/common';
 
+export interface FavoriteBookInfo {
+  bookName: string;
+  totalPage: number;
+  bigCoverPic: string;
+  bookId: number;
+  coverPic: string;
+  tagId: number;
+  page: number;
+  lastRead: number;
+  readingCost: number;
+}
+
+export interface FavoriteBookList {
+  content: FavoriteBookInfo[];
+  total: number;
+  totalPage: number;
+}
+
 interface ChangeBookTagBody {
   bookId: number;
   tagId: number;
 }
 
-interface AddFavoriteBody {
+interface FavoriteListBody {
+  page: number;
+  pageSize: number;
+}
+
+interface BookIdBody {
   bookId: number;
 }
 
@@ -17,8 +40,8 @@ export function getAllTag(): Promise<BookTag[]> {
 
 export function changeBookTagApi(bookId: number, tagId: number): Promise<void> {
   const body: ChangeBookTagBody = {
-    bookId,
-    tagId
+    bookId: bookId,
+    tagId: tagId
   };
   return requestPost<void>({
     url: '/api/book/tag/change',
@@ -27,7 +50,7 @@ export function changeBookTagApi(bookId: number, tagId: number): Promise<void> {
 }
 
 export function addFavoriteApi(bookId: number): Promise<void> {
-  const body: AddFavoriteBody = {
+  const body: BookIdBody = {
     bookId: bookId
   };
   return requestPost<void>({
@@ -37,11 +60,22 @@ export function addFavoriteApi(bookId: number): Promise<void> {
 }
 
 export function delFavoriteApi(bookId: number): Promise<void> {
-  const body: AddFavoriteBody = {
+  const body: BookIdBody = {
     bookId: bookId
   };
   return requestPost<void>({
     url: '/api/favorite/delete',
+    body: body
+  });
+}
+
+export function getFavoriteBookListApi(page: number, pageSize: number): Promise<FavoriteBookList> {
+  const body: FavoriteListBody = {
+    page: page,
+    pageSize: pageSize
+  };
+  return requestPost<FavoriteBookList>({
+    url: '/api/favorite/list',
     body: body
   });
 }

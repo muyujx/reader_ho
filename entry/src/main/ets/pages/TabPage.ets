@@ -85,7 +85,7 @@ struct TabPage {
         TabContent() {
           DiscoverPage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_discover'), '发现', 1))
+        .tabBar(this.TabBuilder($r('app.media.ic_discover'), '收藏', 1))
 
         TabContent() {
           HistoryPage()
