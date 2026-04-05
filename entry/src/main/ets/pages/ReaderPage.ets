@@ -1,6 +1,6 @@
 import router from '@ohos.router';
 import { addHost } from '@ohos/common';
-import { getBookDetail, getBookPageList, getContents, PageItem, BookInfo, ContentsItem } from '@ohos/bookshelf';
+import { getBookDetail, getBookPageList, getContents, PageItem, BookInfo, ContentsItem, updateReadingProgressApi } from '@ohos/bookshelf';
 import display from '@ohos.display';
 import web_webview from '@ohos.web.webview';
 
@@ -36,6 +36,8 @@ export struct ReaderPage {
   private screenWidth: number = 360;
   private webController: web_webview.WebviewController = new web_webview.WebviewController();
   @State webSrc: string = '';
+  private readingStartTime: number = 0;
+  private readingTimer: number = -1;
 
   aboutToAppear() {
     try {
@@ -51,6 +53,36 @@ export struct ReaderPage {
       this.loadContents();
     } else {
       router.back();
+    }
+  }
+
+  aboutToDisappear() {
+    this.stopReadingTimerAndSave();
+  }
+
+  startReadingTimer() {
+    this.readingStartTime = Date.now();
+    if (this.readingTimer !== -1) {
+      clearInterval(this.readingTimer);
+    }
+    this.readingTimer = setInterval(() => {
+      // 计时器每分钟保存一次
+    }, 60000);
+  }
+
+  stopReadingTimerAndSave() {
+    if (this.readingTimer !== -1) {
+      clearInterval(this.readingTimer);
+      this.readingTimer = -1;
+    }
+    if (this.bookId > 0 && this.currentPage > COVER_PAGE && this.readingStartTime > 0) {
+      const readingCost = Math.floor((Date.now() - this.readingStartTime) / 1000);
+      if (readingCost > 0) {
+        updateReadingProgressApi(this.bookId, this.currentPage, readingCost)
+          .catch((err: Error) => {
+            console.error('updateReadingProgressApi error:', JSON.stringify(err));
+          });
+      }
     }
   }
 
@@ -110,6 +142,7 @@ export struct ReaderPage {
       };
       this.currentPage = COVER_PAGE;
       this.updateCurChapter();
+      this.stopReadingTimerAndSave();
       return;
     }
 
@@ -121,6 +154,7 @@ export struct ReaderPage {
         const newSrc = `data:text/html,${encodeURIComponent(this.formatHtmlContent(this.curPageItem.content))}`;
         this.webSrc = newSrc;
         this.updateCurChapter();
+        this.startReadingTimer();
         setTimeout(() => {
           try {
             this.webController.loadUrl(newSrc);
@@ -147,11 +181,26 @@ export struct ReaderPage {
   }
 
   nextPage() {
+    this.saveReadingProgress();
     this.loadPage(this.currentPage + 1);
   }
 
   prePage() {
+    this.saveReadingProgress();
     this.loadPage(this.currentPage - 1);
+  }
+
+  saveReadingProgress() {
+    if (this.bookId > 0 && this.currentPage > COVER_PAGE && this.readingStartTime > 0) {
+      const readingCost = Math.floor((Date.now() - this.readingStartTime) / 1000);
+      if (readingCost > 0) {
+        updateReadingProgressApi(this.bookId, this.currentPage, readingCost)
+          .catch((err: Error) => {
+            console.error('saveReadingProgress error:', JSON.stringify(err));
+          });
+      }
+    }
+    this.readingStartTime = Date.now();
   }
 
   toggleContents() {

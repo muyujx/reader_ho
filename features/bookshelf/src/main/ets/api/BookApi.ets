@@ -51,6 +51,12 @@ export interface BookPageParam {
   pageSize: number;
 }
 
+export interface UpdateProgressParam {
+  bookId: number;
+  readingCost: number;
+  page: number;
+}
+
 export function getBookPageList(bookId: number, startPage: number, pageSize: number): Promise<PageItem[]> {
   const body: BookPageParam = {
     bookId: bookId,
@@ -66,5 +72,17 @@ export function getBookPageList(bookId: number, startPage: number, pageSize: num
 export function getContents(bookId: number): Promise<ContentsItem[]> {
   return requestGet<ContentsItem[]>({
     url: `/api/book/info/get/contents?bookId=${bookId}`
+  });
+}
+
+export function updateReadingProgressApi(bookId: number, page: number, readingCost: number): Promise<void> {
+  const body: UpdateProgressParam = {
+    bookId,
+    readingCost,
+    page
+  };
+  return requestPost<void>({
+    url: '/api/book/progress/update',
+    body: body
   });
 }
