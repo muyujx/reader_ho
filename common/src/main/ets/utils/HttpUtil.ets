@@ -1,54 +1,23 @@
 import { http } from '@kit.NetworkKit';
-import { SERVER_HOST } from '../constants/Config';
+import { CommonConstants } from '../constants/CommonConstants';
 import { loginStateStore } from './LoginState';
 import { cookieStore } from './CookieStore';
 
-export interface ResponseModel<T> {
-  data: T;
-  code: number;
-  message: string;
-}
-
-export interface BookSearchParams {
-  page: number;
-  pageSize: number;
-  search: string;
-  tag: number;
-}
-
-export interface PageListParams {
-  bookId: number;
-  startPage: number;
-  pageSize: number;
-}
-
-export interface SearchOnTypeParams {
-  query: string;
-}
-
-export interface FavoriteListParams {
-  page: number;
-  pageSize: number;
-}
-
-export interface BookIdParams {
-  bookId: number;
-}
-
-export interface ChangeTagParams {
-  bookId: number;
-  tagId: number;
-}
-
 export interface RequestParam {
   url: string;
-  body?: Object;
+  body?: object;
   queryParam?: string;
+}
+
+export interface ResponseModel<T> {
+  code: number;
+  data: T;
+  message: string;
 }
 
 export async function requestPost<T>(param: RequestParam): Promise<T> {
   const path = param.url.startsWith('/') ? param.url : '/' + param.url;
-  const url = SERVER_HOST + path;
+  const url = CommonConstants.SERVER_HOST + path;
   
   console.info('HttpUtil requestPost url:', url);
   console.info('HttpUtil requestPost body:', JSON.stringify(param.body));
@@ -119,7 +88,7 @@ export async function requestGet<T>(param: RequestParam): Promise<T> {
   if (param.queryParam) {
     path += '?' + param.queryParam;
   }
-  const url = SERVER_HOST + path;
+  const url = CommonConstants.SERVER_HOST + path;
   
   console.info('HttpUtil requestGet url:', url);
   

@@ -1,12 +1,11 @@
 import router from '@ohos.router';
 import { TabConstants } from '../constants/TabConstants';
-import { BookShelfPage } from './BookShelfPage';
+import { BookShelfPage } from '@ohos/bookshelf';
 import { DiscoverPage } from './DiscoverPage';
 import { HistoryPage } from './HistoryPage';
 import { MinePage } from './MinePage';
-import { loginStateStore } from '../utils/LoginState';
-import { userStore } from '../utils/UserStore';
-import { checkLoginApi } from '../api/LoginApi';
+import { loginStateStore, userStore } from '@ohos/common';
+import { checkLoginApi } from '@ohos/bookshelf';
 
 @Entry
 @Component
@@ -20,13 +19,6 @@ struct TabPage {
   }
 
   async checkLoginState() {
-    const hasLocalUser = await userStore.isLoggedIn();
-    if (!hasLocalUser) {
-      this.isLoggedIn = false;
-      this.isChecking = false;
-      return;
-    }
-    
     try {
       const res = await checkLoginApi();
       await userStore.saveUser({

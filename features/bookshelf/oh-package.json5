@@ -1,9 +1,11 @@
 {
-  "name": "bookshelf",
+  "name": "@ohos/bookshelf",
   "version": "1.0.0",
   "description": "书架模块",
   "main": "Index.ets",
   "author": "",
   "license": "Apache-2.0",
-  "dependencies": {}
+  "dependencies": {
+    "@ohos/common": "file:../../common"
+  }
 }

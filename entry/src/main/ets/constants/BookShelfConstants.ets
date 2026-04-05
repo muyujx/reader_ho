@@ -7,4 +7,5 @@ export class BookShelfConstants {
   static readonly PUBLIC_SPACE: number = 12;
   static readonly MAIN_PADDING: number = 16;
   static readonly BORDER_RADIUS: number = 12;
+  static readonly MAIN_COLOR: string = '#00C5CD';
 }

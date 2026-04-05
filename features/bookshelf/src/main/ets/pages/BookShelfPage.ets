@@ -1,159 +1,386 @@
+import { BookInfo, BookTag, BookPageResponse } from '@ohos/common';
+import { getBookInfoList } from '../api/BookApi';
+import { getAllTag, changeBookTagApi } from '../api/FavoriteBookApi';
+import { Tags } from '../components/Tags';
+import { TagSelector } from '../components/TagSelector';
 import { BookShelfConstants } from '../constants/BookShelfConstants';
+import { addHost } from '@ohos/common';
+import { window } from '@kit.ArkUI';
+
+const DEFAULT_FIRST_PAGE = 1;
+const DEFAULT_TAG = -1;
+const DEFAULT_SEARCH_STR = '';
+const LARGE_SCREEN_WIDTH = 400;
 
 @Component
 export struct BookShelfPage {
+  @State page: number = 1;
+  @State pageSize: number = 9;
+  @State totalPage: number = 1;
+  @State bookList: BookInfo[] = [];
   @State searchText: string = '';
-  @State selectedTag: number = -1;
-  @State tags: string[] = ['全部', '小说', '科技', '历史', '文学'];
-  @State bookList: string[] = [];
+  @State tag: number = -1;
+  @State tags: BookTag[] = [];
+  @State tagObj: Record<number, BookTag> = {};
+  @State currentTag: number = -1;
+  @State tagBookId: number = -1;
+  @State maskShow: boolean = false;
+  @State isRefreshing: boolean = false;
+  @State screenWidth: number = 360;
+
+  aboutToAppear() {
+    this.page = DEFAULT_FIRST_PAGE;
+    this.tag = DEFAULT_TAG;
+    this.searchText = DEFAULT_SEARCH_STR;
+    this.pageSize = 9;
+    this.initScreenWidth();
+    this.loadBookList();
+    this.loadTags();
+  }
+
+  initScreenWidth() {
+    try {
+      const win = window.getLastWindow(getContext(this));
+      win.then((windowClass: window.Window) => {
+        const rect = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+        const widthPx = rect.topRect.width;
+        this.screenWidth = widthPx / 160 * 60;
+        if (this.screenWidth < 100) {
+          this.screenWidth = 360;
+        }
+      });
+    } catch (err) {
+      this.screenWidth = 360;
+    }
+  }
+
+  isLargeScreen(): boolean {
+    return this.screenWidth >= LARGE_SCREEN_WIDTH;
+  }
+
+  onRefresh() {
+    this.page = 1;
+    this.isRefreshing = true;
+    const bookPromise = getBookInfoList(this.page, this.pageSize, this.searchText, this.tag);
+    const tagPromise = getAllTag();
+    
+    bookPromise
+      .then((bookResult) => {
+        this.totalPage = bookResult.totalPage;
+        this.bookList = bookResult.content;
+      })
+      .catch((err: Error | Object) => {
+        console.error('onRefresh error:', JSON.stringify(err));
+      });
+    
+    tagPromise
+      .then((tagResult) => {
+        this.tags = tagResult;
+        this.tagObj = {};
+        for (let i = 0; i < tagResult.length; i++) {
+          let tagItem: BookTag = tagResult[i];
+          this.tagObj[tagItem.id] = tagItem;
+        }
+      })
+      .catch((err: Error | Object) => {
+        console.error('loadTags error:', JSON.stringify(err));
+      });
+    
+    Promise.all([bookPromise, tagPromise])
+      .finally(() => {
+        this.isRefreshing = false;
+      });
+  }
+
+  loadBookList() {
+    getBookInfoList(this.page, this.pageSize, this.searchText, this.tag)
+      .then((result) => {
+        this.totalPage = result.totalPage;
+        this.bookList = result.content;
+      })
+      .catch((err: Error | Object) => {
+        console.error('loadBookList error:', JSON.stringify(err));
+      });
+  }
+
+  loadTags() {
+    getAllTag()
+      .then((result) => {
+        this.tags = result;
+        for (let i = 0; i < result.length; i++) {
+          let tagItem: BookTag = result[i];
+          this.tagObj[tagItem.id] = tagItem;
+        }
+      })
+      .catch((err: Error | Object) => {
+        console.error('loadTags error:', JSON.stringify(err));
+      });
+  }
+
+  jumpToPage(pageIdx: number) {
+    if (pageIdx < 1 || (this.totalPage !== 0 && pageIdx > this.totalPage)) {
+      return;
+    }
+    this.page = pageIdx;
+    this.loadBookList();
+  }
+
+  onSearch() {
+    if (this.searchText.length > 0) {
+      this.tag = DEFAULT_TAG;
+    }
+    this.jumpToPage(1);
+  }
+
+  onTagChange(curTag: number) {
+    if (curTag === this.tag) {
+      return;
+    }
+    this.tag = curTag;
+    this.jumpToPage(1);
+  }
+
+  onTagSelectorChange(tagId: number) {
+    changeBookTagApi(this.tagBookId, tagId).then(() => {
+      this.loadBookList();
+    })
+    this.maskCancel();
+  }
+
+  maskCancel() {
+    this.maskShow = false;
+  }
+
+  getTagName(tagId: number): string {
+    if (tagId === -1) {
+      return '未分类';
+    }
+    const tagItem = this.tagObj[tagId];
+    return tagItem ? tagItem.name : '';
+  }
+
+  getColumnsTemplate(): string {
+    return this.isLargeScreen() ? '1fr 1fr 1fr' : '1fr 1fr';
+  }
+
+  getDisplayBooks(): BookInfo[] {
+    if (!this.bookList) {
+      return [];
+    }
+    return this.bookList.slice(0, this.pageSize);
+  }
 
   @Builder
   searchBar() {
     Row() {
-      Image($r('app.media.ic_search'))
-        .width(20)
-        .height(20)
-        .fillColor('#999999')
-
-      TextInput({ placeholder: '搜索书名或作者', text: this.searchText })
-        .height(BookShelfConstants.SEARCH_HEIGHT)
+      TextInput({ placeholder: '根据书名或作者名搜索', text: this.searchText })
+        .height(40)
         .layoutWeight(1)
-        .fontSize(14)
+        .borderRadius(20)
         .backgroundColor('#F5F5F5')
-        .borderRadius(BookShelfConstants.BORDER_RADIUS)
-        .padding({ left: 8 })
+        .padding({ left: 16, right: 16 })
+        .fontSize(14)
         .onChange((value: string) => {
           this.searchText = value;
         })
-
-      if (this.searchText.length > 0) {
-        Image($r('app.media.ic_clear'))
-          .width(18)
-          .height(18)
-          .fillColor('#999999')
-          .onClick(() => {
-            this.searchText = '';
-          })
-      }
-    }
-    .padding({ left: BookShelfConstants.MAIN_PADDING, right: BookShelfConstants.MAIN_PADDING })
-    .height(BookShelfConstants.SEARCH_HEIGHT + 16)
-  }
-
-  @Builder
-  tagBar() {
-    Scroll() {
-      Row({ space: BookShelfConstants.TAG_MARGIN }) {
-        ForEach(this.tags, (tag: string, index: number) => {
-          Text(tag)
-            .fontSize(14)
-            .padding({
-              left: BookShelfConstants.TAG_MARGIN * 2,
-              right: BookShelfConstants.TAG_MARGIN * 2,
-              top: BookShelfConstants.TAG_MARGIN / 2,
-              bottom: BookShelfConstants.TAG_MARGIN / 2
-            })
-            .backgroundColor(this.selectedTag === index ? '#00C5CD' : '#F0F0F0')
-            .fontColor(this.selectedTag === index ? '#FFFFFF' : '#333333')
-            .borderRadius(BookShelfConstants.TAG_HEIGHT / 2)
-            .onClick(() => {
-              this.selectedTag = index;
-            })
+        .onSubmit(() => {
+          this.onSearch();
         })
-      }
-      .padding({ left: BookShelfConstants.MAIN_PADDING, right: BookShelfConstants.MAIN_PADDING })
+
+      Button('搜索')
+        .height(40)
+        .fontSize(14)
+        .fontColor('#FFFFFF')
+        .backgroundColor(BookShelfConstants.MAIN_COLOR)
+        .borderRadius(20)
+        .padding({ left: 20, right: 20 })
+        .onClick(() => {
+          this.onSearch();
+        })
     }
-    .scrollable(ScrollDirection.Horizontal)
-    .scrollBar(BarState.Off)
-    .height(BookShelfConstants.TAG_HEIGHT + BookShelfConstants.PUBLIC_SPACE)
     .width('100%')
+    .height(56)
+    .padding({ left: 12, right: 12 })
   }
 
   @Builder
   bookGrid() {
-    if (this.bookList.length === 0) {
-      Column() {
-        Image($r('app.media.ic_empty'))
-          .width(80)
-          .height(80)
-          .opacity(0.5)
-        Text('书架为空')
-          .fontSize(16)
-          .fontColor('#999999')
-          .margin({ top: 16 })
-        Text('点击下方按钮导入书籍')
-          .fontSize(14)
-          .fontColor('#CCCCCC')
-          .margin({ top: 8 })
-      }
-      .width('100%')
-      .height('100%')
-      .justifyContent(FlexAlign.Center)
-    } else {
-      Grid() {
-        ForEach(this.bookList, (book: string) => {
-          GridItem() {
+    Column() {
+      Refresh({ refreshing: this.isRefreshing }) {
+        Column() {
+          if (!this.bookList || this.bookList.length === 0) {
             Column() {
-              Column()
-                .width('100%')
-                .height(BookShelfConstants.BOOK_COVER_HEIGHT)
-                .backgroundColor('#E0E0E0')
-                .borderRadius(8)
-
-              Text(book)
-                .fontSize(12)
-                .margin({ top: 8 })
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
+              Image($r('app.media.ic_empty'))
+                .width(80)
+                .height(80)
+                .opacity(0.5)
+              Text('书架为空')
+                .fontSize(16)
+                .fontColor('#999999')
+                .margin({ top: 16 })
             }
+            .width('100%')
+            .height('100%')
+            .justifyContent(FlexAlign.Center)
+          } else {
+            Grid() {
+              ForEach(this.getDisplayBooks(), (book: BookInfo) => {
+                GridItem() {
+                  this.bookItem(book)
+                }
+              })
+            }
+            .columnsTemplate(this.getColumnsTemplate())
+            .rowsTemplate('1fr 1fr 1fr')
+            .columnsGap(12)
+            .rowsGap(12)
+            .padding({ left: 16, right: 16 })
+            .width('100%')
+            .height('100%')
           }
-        })
+        }
+        .width('100%')
       }
-      .columnsTemplate('1fr 1fr 1fr')
-      .columnsGap(BookShelfConstants.PUBLIC_SPACE)
-      .rowsGap(BookShelfConstants.PUBLIC_SPACE)
-      .padding(BookShelfConstants.MAIN_PADDING)
-      .scrollBar(BarState.Off)
+      .onRefreshing(() => {
+        this.onRefresh();
+      })
     }
+    .width('100%')
+    .layoutWeight(1)
   }
 
   @Builder
-  addButton() {
-    Row() {
-      Image($r('app.media.ic_add'))
-        .width(24)
-        .height(24)
-        .fillColor('#FFFFFF')
-      Text('导入书籍')
-        .fontSize(16)
-        .fontColor('#FFFFFF')
-        .margin({ left: 8 })
-    }
-    .width('100%')
-    .height(50)
-    .backgroundColor('#00C5CD')
-    .borderRadius(BookShelfConstants.BORDER_RADIUS)
-    .justifyContent(FlexAlign.Center)
-    .padding({ left: BookShelfConstants.MAIN_PADDING, right: BookShelfConstants.MAIN_PADDING })
-    .onClick(() => {
-    })
-  }
-
-  build() {
+  bookItem(book: BookInfo) {
     Column() {
-      this.searchBar()
-      this.tagBar()
-      this.bookGrid()
-        .layoutWeight(1)
-      this.addButton()
-        .margin({
-          left: BookShelfConstants.MAIN_PADDING,
-          right: BookShelfConstants.MAIN_PADDING,
-          bottom: BookShelfConstants.MAIN_PADDING
-        })
+      Stack({ alignContent: Alignment.BottomEnd }) {
+        Image(addHost(book.coverPic))
+          .width('100%')
+          .height('100%')
+          .borderRadius(8)
+          .objectFit(ImageFit.Cover)
+          .clip(true)
+
+        if (book.tagId !== -1) {
+          Text(this.getTagName(book.tagId))
+            .fontSize(10)
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+            .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+            .backgroundColor(BookShelfConstants.MAIN_COLOR)
+            .fontColor('#FFFFFF')
+            .borderRadius({ topRight: 8, bottomLeft: 8 })
+        }
+      }
+      .width('100%')
+      .height('85%')
+      .clip(true)
+
+      Text(book.bookName)
+        .fontSize(11)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .width('100%')
+        .textAlign(TextAlign.Center)
+        .margin({ top: 4 })
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F5')
+    .padding({ left: 2, right: 2 })
+  }
+
+  @Builder
+  pagination() {
+    Row() {
+      Button('上一页')
+        .fontSize(14)
+        .height(36)
+        .fontColor(this.page > 1 ? BookShelfConstants.MAIN_COLOR : '#999999')
+        .backgroundColor('#FFFFFF')
+        .borderColor(this.page > 1 ? BookShelfConstants.MAIN_COLOR : '#E0E0E0')
+        .borderWidth(1)
+        .borderRadius(18)
+        .enabled(this.page > 1)
+        .onClick(() => {
+          this.jumpToPage(this.page - 1);
+        })
+
+      Text(`第 ${this.page} / ${this.totalPage} 页`)
+        .fontSize(14)
+        .fontColor('#666666')
+        .margin({ left: 16, right: 16 })
+
+      Button('下一页')
+        .fontSize(14)
+        .height(36)
+        .fontColor(this.page < this.totalPage ? BookShelfConstants.MAIN_COLOR : '#999999')
+        .backgroundColor('#FFFFFF')
+        .borderColor(this.page < this.totalPage ? BookShelfConstants.MAIN_COLOR : '#E0E0E0')
+        .borderWidth(1)
+        .borderRadius(18)
+        .enabled(this.page < this.totalPage)
+        .onClick(() => {
+          this.jumpToPage(this.page + 1);
+        })
+    }
+    .width('100%')
+    .justifyContent(FlexAlign.Center)
+    .padding({ top: 8, bottom: 12 })
+  }
+
+  @Builder
+  tagSelectorPanel() {
+    if (this.maskShow) {
+      Stack() {
+        Column()
+          .width('100%')
+          .height('100%')
+          .backgroundColor('#40000000')
+          .onClick(() => {
+            this.maskCancel();
+          })
+
+        Column() {
+          TagSelector({
+            tags: this.tags,
+            currentTag: this.currentTag,
+            onTagChange: (tagId: number) => {
+              this.onTagSelectorChange(tagId);
+            }
+          })
+        }
+        .position({ x: 100, y: 200 })
+      }
+      .width('100%')
+      .height('100%')
+    }
+  }
+
+  build() {
+    Stack() {
+      Column() {
+        this.searchBar()
+
+        Tags({
+          tags: this.tags,
+          currentTag: this.tag,
+          onTagChange: (tagId: number) => {
+            this.onTagChange(tagId);
+          }
+        })
+
+        this.bookGrid()
+
+        this.pagination()
+      }
+      .width('100%')
+      .height('100%')
+      .backgroundColor('#F5F5F5')
+
+      if (this.maskShow) {
+        this.tagSelectorPanel()
+      }
+    }
+    .width('100%')
+    .height('100%')
   }
 }

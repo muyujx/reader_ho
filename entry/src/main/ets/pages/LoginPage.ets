@@ -1,7 +1,6 @@
 import router from '@ohos.router';
-import { loginApi, registerApi } from '../api/LoginApi';
-import { userStore } from '../utils/UserStore';
-import { loginStateStore } from '../utils/LoginState';
+import { loginApi, registerApi } from '@ohos/bookshelf';
+import { userStore, loginStateStore } from '@ohos/common';
 
 @Entry
 @Component

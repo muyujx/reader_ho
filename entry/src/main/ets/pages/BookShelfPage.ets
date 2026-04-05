@@ -1,6 +1,6 @@
 import { BookInfo, BookTag } from '../model/BookModel';
-import { getBookInfoList, searchOnTypeApi } from '../api/BookApi';
-import { getAllTag, changeBookTagApi, addFavoriteApi, delFavoriteApi } from '../api/FavoriteBookApi';
+import { getBookInfoList } from '../api/BookApi';
+import { getAllTag, changeBookTagApi } from '../api/FavoriteBookApi';
 import { Tags } from '../components/Tags';
 import { TagSelector } from '../components/TagSelector';
 import { addHost } from '../constants/Config';
@@ -10,7 +10,6 @@ const DEFAULT_FIRST_PAGE = 1;
 const DEFAULT_TAG = -1;
 const DEFAULT_SEARCH_STR = '';
 const LARGE_SCREEN_WIDTH = 400;
-const BOOK_ITEM_HEIGHT = 180;
 
 @Component
 export struct BookShelfPage {
@@ -25,7 +24,6 @@ export struct BookShelfPage {
   @State currentTag: number = -1;
   @State tagBookId: number = -1;
   @State maskShow: boolean = false;
-  @State titlePopoverDisable: boolean = false;
   @State isRefreshing: boolean = false;
   @State screenWidth: number = 360;
 
@@ -35,7 +33,7 @@ export struct BookShelfPage {
     this.searchText = DEFAULT_SEARCH_STR;
     this.pageSize = 9;
     this.initScreenWidth();
-    this.loadBookList(false);
+    this.loadBookList();
     this.loadTags();
   }
 
@@ -92,7 +90,7 @@ export struct BookShelfPage {
       });
   }
 
-  loadBookList(showLoading: boolean = true) {
+  loadBookList() {
     getBookInfoList(this.page, this.pageSize, this.searchText, this.tag)
       .then((result) => {
         this.totalPage = result.totalPage;
@@ -146,30 +144,8 @@ export struct BookShelfPage {
     this.maskCancel();
   }
 
-  chooseTag(book: BookInfo, targetIndex: number) {
-    this.titlePopoverDisable = true;
-    this.maskShow = true;
-    this.currentTag = book.tagId;
-    this.tagBookId = book.bookId;
-  }
-
   maskCancel() {
     this.maskShow = false;
-    this.titlePopoverDisable = false;
-  }
-
-  changeFavorite(book: BookInfo) {
-    if (book.favorite) {
-      delFavoriteApi(book.bookId)
-        .finally(() => {
-          this.loadBookList();
-        });
-    } else {
-      addFavoriteApi(book.bookId)
-        .finally(() => {
-          this.loadBookList();
-        });
-    }
   }
 
   getTagName(tagId: number): string {
@@ -180,20 +156,12 @@ export struct BookShelfPage {
     return tagItem ? tagItem.name : '';
   }
 
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    if (this.totalPage <= 5) {
-      for (let i = 1; i <= this.totalPage; i++) {
-        pages.push(i);
-      }
-      return pages;
-    }
-    const start = Math.max(1, this.page - 1);
-    const end = Math.min(this.totalPage, this.page + 2);
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
+  getColumnsTemplate(): string {
+    return this.isLargeScreen() ? '1fr 1fr 1fr' : '1fr 1fr';
+  }
+
+  getDisplayBooks(): BookInfo[] {
+    return this.bookList.slice(0, this.pageSize);
   }
 
   @Builder
@@ -229,14 +197,6 @@ export struct BookShelfPage {
     .padding({ left: 12, right: 12 })
   }
 
-  getColumnsTemplate(): string {
-    return this.isLargeScreen() ? '1fr 1fr 1fr' : '1fr 1fr';
-  }
-
-  getRowsCount(): number {
-    return 3;
-  }
-
   @Builder
   bookGrid() {
     Column() {
@@ -258,7 +218,7 @@ export struct BookShelfPage {
             .justifyContent(FlexAlign.Center)
           } else {
             Grid() {
-              ForEach(this.getDisplayBooks(), (book: BookInfo, index: number) => {
+              ForEach(this.getDisplayBooks(), (book: BookInfo) => {
                 GridItem() {
                   this.bookItem(book)
                 }
@@ -281,22 +241,6 @@ export struct BookShelfPage {
     }
     .width('100%')
     .layoutWeight(1)
-  }
-
-  getDisplayBooks(): BookInfo[] {
-    return this.bookList.slice(0, this.pageSize);
-  }
-
-  getBookRows(): BookInfo[][] {
-    const rows: BookInfo[][] = [];
-    for (let i = 0; i < this.bookList.length; i += 3) {
-      const row: BookInfo[] = [];
-      for (let j = 0; j < 3 && i + j < this.bookList.length; j++) {
-        row.push(this.bookList[i + j]);
-      }
-      rows.push(row);
-    }
-    return rows;
   }
 
   @Builder
@@ -336,8 +280,6 @@ export struct BookShelfPage {
     .width('100%')
     .height('100%')
     .padding({ left: 2, right: 2 })
-    .onClick(() => {
-    })
   }
 
   @Builder
@@ -377,23 +319,6 @@ export struct BookShelfPage {
     .width('100%')
     .justifyContent(FlexAlign.Center)
     .padding({ top: 8, bottom: 12 })
-  }
-
-  @Builder
-  pageButton(pageNum: number) {
-    Text(pageNum.toString())
-      .fontSize(12)
-      .height(32)
-      .width(36)
-      .fontColor(this.page === pageNum ? '#FFFFFF' : '#666666')
-      .backgroundColor(this.page === pageNum ? '#00C5CD' : '#FFFFFF')
-      .borderColor(this.page === pageNum ? '#00C5CD' : '#E0E0E0')
-      .borderWidth(1)
-      .borderRadius(16)
-      .textAlign(TextAlign.Center)
-      .onClick(() => {
-        this.jumpToPage(pageNum);
-      })
   }
 
   @Builder
