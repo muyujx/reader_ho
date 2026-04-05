@@ -58,7 +58,6 @@ export struct BookShelfPage {
   }
 
   onRefresh() {
-    this.page = 1;
     this.isRefreshing = true;
     const bookPromise = getBookInfoList(this.page, this.pageSize, this.searchText, this.tag);
     const tagPromise = getAllTag();

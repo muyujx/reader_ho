@@ -54,7 +54,6 @@ export struct FavoritePage {
   }
 
   onRefresh() {
-    this.page = 1;
     this.isRefreshing = true;
     getFavoriteBookListApi(this.page, this.pageSize)
       .then((result: FavoriteBookList) => {
