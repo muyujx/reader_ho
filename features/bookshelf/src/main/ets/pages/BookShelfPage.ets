@@ -1,8 +1,7 @@
 import { BookInfo, BookTag, BookPageResponse } from '@ohos/common';
 import { getBookInfoList } from '../api/BookApi';
 import { getAllTag, changeBookTagApi } from '../api/FavoriteBookApi';
-import { Tags } from '../components/Tags';
-import { TagSelector } from '../components/TagSelector';
+import { Tags, TagSelector } from '@ohos/bookshelf';
 import { BookShelfConstants } from '../constants/BookShelfConstants';
 import { addHost } from '@ohos/common';
 import { window } from '@kit.ArkUI';
