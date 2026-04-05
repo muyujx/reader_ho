@@ -1,4 +1,4 @@
-import { userStore, cookieStore, NeedLoginError } from '@ohos/common';
+import { userStore, cookieStore, NeedLoginError, loginStateStore } from '@ohos/common';
 import { logoutApi } from '@ohos/login';
 import promptAction from '@ohos.promptAction';
 import router from '@ohos.router';
@@ -64,7 +64,8 @@ export struct MinePage {
     }
     await userStore.clearUser();
     await cookieStore.clearCookie();
-    router.replaceUrl({ url: 'pages/LoginPage' });
+    await loginStateStore.setLoginSuccess(false);
+    router.back();
   }
 
   @Builder

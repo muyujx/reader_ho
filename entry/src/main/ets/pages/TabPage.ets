@@ -1,8 +1,7 @@
 import { TabConstants } from '../constants/TabConstants';
-import { BookShelfPage } from '@ohos/bookshelf';
-import { DiscoverPage } from './DiscoverPage';
-import { HistoryPage } from './HistoryPage';
-import { MinePage } from './MinePage';
+import { BookShelfPage, FavoritePage } from '@ohos/bookshelf';
+import { HistoryPage } from '@ohos/history';
+import { MinePage } from '@ohos/mine';
 import { loginStateStore, userStore } from '@ohos/common';
 import { checkLoginApi, LoginPage } from '@ohos/login';
 
@@ -72,7 +71,7 @@ struct TabPage {
         .tabBar(this.TabBuilder($r('app.media.ic_bookshelf'), $r('app.media.ic_bookshelf_selected'), '书架', 0))
 
         TabContent() {
-          DiscoverPage()
+          FavoritePage()
         }
         .tabBar(this.TabBuilder($r('app.media.ic_favorite'), $r('app.media.ic_favorite_selected'), '收藏', 1))
 

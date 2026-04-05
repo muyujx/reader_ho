@@ -8,7 +8,9 @@
   "dependencies": {
     "@ohos/common": "file:../common",
     "@ohos/bookshelf": "file:../features/bookshelf",
-    "@ohos/login": "file:../features/login"
+    "@ohos/login": "file:../features/login",
+    "@ohos/history": "file:../features/history",
+    "@ohos/mine": "file:../features/mine"
   }
 }
 

@@ -11,3 +11,4 @@
 **/.test
 /.appanalyzer
 entry/src/main/resources/base/profile/config.json
+signing/
