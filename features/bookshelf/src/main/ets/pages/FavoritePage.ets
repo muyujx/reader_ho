@@ -86,6 +86,10 @@ export struct FavoritePage {
       });
   }
 
+  openBook(book: FavoriteBookInfo) {
+    router.pushUrl({ url: 'pages/ReaderPage', params: { bookId: book.bookId } });
+  }
+
   getProgressPercent(book: FavoriteBookInfo): number {
     if (book.lastRead === 0 || book.totalPage === 0) {
       return 0;
@@ -247,6 +251,9 @@ export struct FavoritePage {
     .backgroundColor('#FFFFFF')
     .borderRadius(8)
     .margin({ bottom: 8 })
+    .onClick(() => {
+      this.openBook(book);
+    })
   }
 
   @Builder

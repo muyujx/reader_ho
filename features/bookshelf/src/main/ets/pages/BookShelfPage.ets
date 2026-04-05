@@ -5,6 +5,7 @@ import { Tags, TagSelector } from '@ohos/bookshelf';
 import { BookShelfConstants } from '../constants/BookShelfConstants';
 import { addHost } from '@ohos/common';
 import { window } from '@kit.ArkUI';
+import router from '@ohos.router';
 
 const DEFAULT_FIRST_PAGE = 1;
 const DEFAULT_TAG = -1;
@@ -180,6 +181,10 @@ export struct BookShelfPage {
     }
   }
 
+  openBook(book: BookInfo) {
+    router.pushUrl({ url: 'pages/ReaderPage', params: { bookId: book.bookId } });
+  }
+
   @Builder
   searchBar() {
     Row() {
@@ -319,6 +324,9 @@ export struct BookShelfPage {
     .width('100%')
     .height('100%')
     .padding({ left: 2, right: 2 })
+    .onClick(() => {
+      this.openBook(book);
+    })
   }
 
   @Builder

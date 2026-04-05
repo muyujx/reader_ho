@@ -1,10 +1,28 @@
-import { requestPost, requestGet, BookInfo, BookPageResponse } from '@ohos/common';
+import { requestPost, requestGet, BookInfo as CommonBookInfo, BookPageResponse } from '@ohos/common';
+
+export interface BookInfo extends CommonBookInfo {
+  totalPage?: number;
+  bigCoverPic?: string;
+}
 
 export interface BookQueryParam {
   page: number;
   pageSize: number;
   searchStr?: string;
   tag?: number;
+}
+
+export interface PageItem {
+  content: string;
+  title: string;
+  page: number;
+  topChapter: number;
+}
+
+export interface ContentsItem {
+  level: number;
+  startPage: number;
+  label: string;
 }
 
 export function getBookInfoList(page: number, pageSize: number, searchStr: string = '', tag: number = -1): Promise<BookPageResponse> {
@@ -24,5 +42,29 @@ export function getBookDetail(bookId: number): Promise<BookInfo> {
   return requestGet<BookInfo>({
     url: '/api/book/info/get/book/info',
     queryParam: `bookId=${bookId}`
+  });
+}
+
+export interface BookPageParam {
+  bookId: number;
+  startPage: number;
+  pageSize: number;
+}
+
+export function getBookPageList(bookId: number, startPage: number, pageSize: number): Promise<PageItem[]> {
+  const body: BookPageParam = {
+    bookId: bookId,
+    startPage: startPage,
+    pageSize: pageSize
+  };
+  return requestPost<PageItem[]>({
+    url: '/api/book/page/html/page',
+    body: body
+  });
+}
+
+export function getContents(bookId: number): Promise<ContentsItem[]> {
+  return requestGet<ContentsItem[]>({
+    url: `/api/book/info/get/contents?bookId=${bookId}`
   });
 }
