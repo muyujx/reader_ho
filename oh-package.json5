@@ -3,7 +3,8 @@
   "description": "Please describe the basic information.",
   "dependencies": {
     "@ohos/common": "file:./common",
-    "@ohos/bookshelf": "file:./features/bookshelf"
+    "@ohos/bookshelf": "file:./features/bookshelf",
+    "@ohos/login": "file:./features/login"
   },
   "devDependencies": {
     "@ohos/hypium": "1.0.25",

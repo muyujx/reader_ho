@@ -1,11 +1,10 @@
-import router from '@ohos.router';
 import { TabConstants } from '../constants/TabConstants';
 import { BookShelfPage } from '@ohos/bookshelf';
 import { DiscoverPage } from './DiscoverPage';
 import { HistoryPage } from './HistoryPage';
 import { MinePage } from './MinePage';
 import { loginStateStore, userStore } from '@ohos/common';
-import { checkLoginApi } from '@ohos/bookshelf';
+import { checkLoginApi, LoginPage } from '@ohos/login';
 
 @Entry
 @Component
@@ -62,16 +61,7 @@ struct TabPage {
       .height('100%')
       .justifyContent(FlexAlign.Center)
     } else if (!this.isLoggedIn) {
-      Column() {
-        Text('正在跳转登录页面...')
-          .fontSize(16)
-      }
-      .width('100%')
-      .height('100%')
-      .justifyContent(FlexAlign.Center)
-      .onAppear(() => {
-        router.pushUrl({ url: 'pages/LoginPage' });
-      })
+      LoginPage()
     } else {
       Tabs({
         barPosition: BarPosition.End,

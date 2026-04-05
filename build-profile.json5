@@ -45,6 +45,10 @@
     {
       "name": "bookshelf",
       "srcPath": "./features/bookshelf"
+    },
+    {
+      "name": "login",
+      "srcPath": "./features/login"
     }
   ]
 }

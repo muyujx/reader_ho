@@ -12,4 +12,7 @@ Reader 的 tauri 版本实现参考：F:\Project\reader\reader_tauri
 'D:\Program\DevEco Studio\tools\node\node.exe' 'D:\Program\DevEco Studio\tools\hvigor\bin\hvigorw.js' --mode module '-p module=entry@default' '-p product=default' '-p requiredDeviceType=phone' assembleHap '--analyze=normal' '--parallel' '--incremental' '--daemon'
 ```
 
+### 验证
+1. 修改完必须验证能够启动
+
 

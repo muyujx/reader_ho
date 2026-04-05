@@ -7,7 +7,8 @@
   "license": "",
   "dependencies": {
     "@ohos/common": "file:../common",
-    "@ohos/bookshelf": "file:../features/bookshelf"
+    "@ohos/bookshelf": "file:../features/bookshelf",
+    "@ohos/login": "file:../features/login"
   }
 }
 

@@ -1,10 +1,9 @@
 import router from '@ohos.router';
-import { loginApi, registerApi } from '@ohos/bookshelf';
+import { loginApi, registerApi } from '@ohos/login';
 import { userStore, loginStateStore } from '@ohos/common';
 
-@Entry
 @Component
-struct LoginPage {
+export struct LoginPage {
   @State isLoginMode: boolean = true;
   @State account: string = '';
   @State password: string = '';
