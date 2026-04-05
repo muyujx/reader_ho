@@ -1,23 +1,28 @@
 @Entry
 @Component
 struct Index {
-  @State message: string = 'Hello World';
+  @State message: string = 'Reader';
 
   build() {
-    RelativeContainer() {
+    Column() {
       Text(this.message)
-        .id('HelloWorld')
-        .fontSize($r('app.float.page_text_font_size'))
+        .fontSize(32)
         .fontWeight(FontWeight.Bold)
-        .alignRules({
-          center: { anchor: '__container__', align: VerticalAlign.Center },
-          middle: { anchor: '__container__', align: HorizontalAlign.Center }
-        })
-        .onClick(() => {
-          this.message = 'Welcome';
-        })
+        .margin({ top: 100 })
+
+      Text('电子书阅读器')
+        .fontSize(20)
+        .margin({ top: 20 })
+
+      Blank()
+
+      Text('框架已就绪')
+        .fontSize(16)
+        .fontColor('#666666')
+        .margin({ bottom: 100 })
     }
-    .height('100%')
     .width('100%')
+    .height('100%')
+    .backgroundColor('#F5F5F5')
   }
 }
