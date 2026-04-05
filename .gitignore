@@ -9,6 +9,7 @@
 /.clang-format
 /.clang-tidy
 **/.test
+**/oh_modules
 /.appanalyzer
 entry/src/main/resources/base/profile/config.json
 signing/
