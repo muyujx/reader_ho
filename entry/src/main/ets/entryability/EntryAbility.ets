@@ -1,7 +1,7 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { userStore, loginStateStore, cookieStore } from '@ohos/common';
+import { userStore, loginStateStore, cookieStore, serverConfigStore } from '@ohos/common';
 
 const DOMAIN = 0x0000;
 
@@ -12,6 +12,7 @@ export default class EntryAbility extends UIAbility {
       await userStore.init();
       await loginStateStore.init();
       await cookieStore.init();
+      await serverConfigStore.loadServerConfig();
     } catch (err) {
       hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
     }

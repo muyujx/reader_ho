@@ -2,6 +2,7 @@ import { http } from '@kit.NetworkKit';
 import { CommonConstants } from '../constants/CommonConstants';
 import { loginStateStore } from './LoginState';
 import { cookieStore } from './CookieStore';
+import { getFullUrl } from './ConfigUtil';
 
 export interface RequestParam {
   url: string;
@@ -25,8 +26,7 @@ export class NeedLoginError extends Error {
 }
 
 export async function requestPost<T>(param: RequestParam): Promise<T> {
-  const path = param.url.startsWith('/') ? param.url : '/' + param.url;
-  const url = CommonConstants.SERVER_HOST + path;
+  const url = getFullUrl(param.url);
   
   console.info('HttpUtil requestPost url:', url);
   console.info('HttpUtil requestPost body:', JSON.stringify(param.body));
@@ -93,11 +93,7 @@ export async function requestPost<T>(param: RequestParam): Promise<T> {
 }
 
 export async function requestGet<T>(param: RequestParam): Promise<T> {
-  let path = param.url.startsWith('/') ? param.url : '/' + param.url;
-  if (param.queryParam) {
-    path += '?' + param.queryParam;
-  }
-  const url = CommonConstants.SERVER_HOST + path;
+  const url = getFullUrl(param.url, param.queryParam);
   
   console.info('HttpUtil requestGet url:', url);
   
