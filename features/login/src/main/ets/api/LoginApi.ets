@@ -35,3 +35,9 @@ export function checkLoginApi(): Promise<UserInfo> {
     url: '/api/check_login'
   });
 }
+
+export function logoutApi(): Promise<void> {
+  return requestPost<void>({
+    url: '/api/logout'
+  });
+}
