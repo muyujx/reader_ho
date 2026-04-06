@@ -13,3 +13,5 @@
 /.appanalyzer
 entry/src/main/resources/base/profile/config.json
 signing/
+release/
+/build.ps1
