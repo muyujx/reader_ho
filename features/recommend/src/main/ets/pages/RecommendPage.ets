@@ -6,6 +6,7 @@
 import { addHost } from '@ohos/common';
 import { RecommendBookInfo, getRecommendBookList } from '../api/RecommendApi';
 import router from '@ohos.router';
+import { LengthMetrics } from '@kit.ArkUI';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -188,6 +189,7 @@ export struct RecommendPage {
           .columnsGap(6)
           .rowsGap(6)
           .padding({ left: 6, right: 6, top: 8, bottom: 8 })
+          .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(80) })
           .width('100%')
           .height('100%')
           .onReachEnd(() => {
