@@ -1,32 +1,24 @@
-import { getDefaultServerHost, setServerHost } from './ConfigUtil';
+import { setServerHost } from './ConfigUtil';
 
 const SERVER_CONFIG_FILE = 'config.json';
 
-export interface ServerConfig {
-  serverHost: string;
-}
-
 export class ServerConfigStore {
-  async loadServerConfig(): Promise<string> {
+  async loadServerConfig(context: Context): Promise<void> {
     try {
-      const context = getContext(this);
       const resMgr = context.resourceManager;
-      const configUint8Array: Uint8Array = await resMgr.getRawFileContent(SERVER_CONFIG_FILE);
-      const configArray: Uint8Array = new Uint8Array(configUint8Array);
+      const rawData: Uint8Array = await resMgr.getRawFileContent(SERVER_CONFIG_FILE);
       let configStr: string = '';
-      for (let i: number = 0; i < configArray.length; i++) {
-        configStr += String.fromCharCode(configArray[i]);
+      for (let i: number = 0; i < rawData.length; i++) {
+        configStr += String.fromCharCode(rawData[i]);
       }
-      const config: ServerConfig = JSON.parse(configStr);
+      const config: Record<string, string> = JSON.parse(configStr);
       if (config.serverHost) {
         setServerHost(config.serverHost);
-        return config.serverHost;
       }
     } catch (err) {
       console.error('ServerConfigStore loadServerConfig error:', JSON.stringify(err));
     }
-    return getDefaultServerHost();
   }
 }
 
-export const serverConfigStore = new ServerConfigStore();
+export const serverConfigStore: ServerConfigStore = new ServerConfigStore();

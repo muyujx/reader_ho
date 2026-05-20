@@ -1,5 +1,4 @@
-const DEFAULT_SERVER_HOST: string = 'http://43.136.218.87';
-let serverHost: string = DEFAULT_SERVER_HOST;
+let serverHost: string = '';
 
 export function getServerHost(): string {
   return serverHost;
@@ -15,8 +14,4 @@ export function getFullUrl(path: string, queryParam?: string): string {
     fullPath += '?' + queryParam;
   }
   return serverHost + fullPath;
-}
-
-export function getDefaultServerHost(): string {
-  return DEFAULT_SERVER_HOST;
 }

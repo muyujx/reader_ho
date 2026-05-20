@@ -12,6 +12,7 @@
 **/oh_modules
 /.appanalyzer
 entry/src/main/resources/base/profile/config.json
+entry/src/main/resources/rawfile/config.json
 signing/
 release/
 /build.ps1

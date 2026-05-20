@@ -1,5 +1,4 @@
 import { http } from '@kit.NetworkKit';
-import { CommonConstants } from '../constants/CommonConstants';
 import { loginStateStore } from './LoginState';
 import { cookieStore } from './CookieStore';
 import { getFullUrl } from './ConfigUtil';

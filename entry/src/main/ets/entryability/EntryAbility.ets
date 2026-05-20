@@ -12,7 +12,7 @@ export default class EntryAbility extends UIAbility {
       await userStore.init();
       await loginStateStore.init();
       await cookieStore.init();
-      await serverConfigStore.loadServerConfig();
+      await serverConfigStore.loadServerConfig(this.context);
       await imageCacheUtil.init();
     } catch (err) {
       hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
