@@ -1,0 +1,12 @@
+{
+  "modelVersion": "6.0.2",
+  "name": "@ohos/recommend",
+  "version": "1.0.0",
+  "description": "推荐模块",
+  "main": "Index.ets",
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@ohos/common": "file:../../common"
+  }
+}

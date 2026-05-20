@@ -29,8 +29,7 @@ function createDirRecursive(dirPath: string): void {
 export class ImageCacheUtil {
   private cacheDir: string = '';
 
-  async init(): Promise<void> {
-    const context = getContext(this);
+  async init(context: Context): Promise<void> {
     this.cacheDir = context.cacheDir + '/' + IMAGE_CACHE_DIR;
     try {
       fileIo.listFileSync(this.cacheDir);

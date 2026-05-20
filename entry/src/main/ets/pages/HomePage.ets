@@ -1,5 +1,6 @@
 import { TabConstants } from '../constants/TabConstants';
 import { BookShelfPage } from '@ohos/bookshelf';
+import { RecommendPage } from '@ohos/recommend';
 import { FavoritePage } from '@ohos/favorite';
 import { HistoryPage } from '@ohos/history';
 import { MinePage } from '@ohos/mine';
@@ -72,19 +73,24 @@ struct HomePage {
         .tabBar(this.TabBuilder($r('app.media.ic_bookshelf'), $r('app.media.ic_bookshelf_selected'), '书架', 0))
 
         TabContent() {
+          RecommendPage()
+        }
+        .tabBar(this.TabBuilder($r('app.media.ic_discover'), $r('app.media.ic_discover'), '推荐', 1))
+
+        TabContent() {
           FavoritePage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_favorite'), $r('app.media.ic_favorite_selected'), '收藏', 1))
+        .tabBar(this.TabBuilder($r('app.media.ic_favorite'), $r('app.media.ic_favorite_selected'), '收藏', 2))
 
         TabContent() {
           HistoryPage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_history'), $r('app.media.ic_history_selected'), '历史', 2))
+        .tabBar(this.TabBuilder($r('app.media.ic_history'), $r('app.media.ic_history_selected'), '历史', 3))
 
         TabContent() {
           MinePage()
         }
-        .tabBar(this.TabBuilder($r('app.media.ic_mine'), $r('app.media.ic_mine_selected'), '我的', 3))
+        .tabBar(this.TabBuilder($r('app.media.ic_mine'), $r('app.media.ic_mine_selected'), '我的', 4))
       }
       .barHeight(TabConstants.TAB_BAR_HEIGHT)
       .onChange((index: number) => {

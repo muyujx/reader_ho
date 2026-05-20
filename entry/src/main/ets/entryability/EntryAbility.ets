@@ -6,14 +6,9 @@ import { userStore, loginStateStore, cookieStore, serverConfigStore, imageCacheU
 const DOMAIN = 0x0000;
 
 export default class EntryAbility extends UIAbility {
-  async onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): Promise<void> {
+  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     try {
       this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
-      await userStore.init();
-      await loginStateStore.init();
-      await cookieStore.init();
-      await serverConfigStore.loadServerConfig(this.context);
-      await imageCacheUtil.init();
     } catch (err) {
       hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
     }
@@ -24,8 +19,14 @@ export default class EntryAbility extends UIAbility {
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onDestroy');
   }
 
-  onWindowStageCreate(windowStage: window.WindowStage): void {
+  async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
+
+    await userStore.init(this.context);
+    await loginStateStore.init(this.context);
+    await cookieStore.init(this.context);
+    await serverConfigStore.loadServerConfig(this.context);
+    await imageCacheUtil.init(this.context);
 
     windowStage.loadContent('pages/HomePage', (err) => {
       if (err.code) {

@@ -6,9 +6,8 @@ const LOGIN_STATE_FILE_NAME = 'login_state';
 export class LoginStateStore {
   private prefs: preferences.Preferences | null = null;
 
-  async init(): Promise<void> {
+  async init(context: Context): Promise<void> {
     try {
-      const context = getContext(this);
       this.prefs = await preferences.getPreferences(context, {
         name: LOGIN_STATE_FILE_NAME
       });

@@ -1,4 +1,5 @@
 import { http } from '@kit.NetworkKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { loginStateStore } from './LoginState';
 import { cookieStore } from './CookieStore';
 import { getFullUrl } from './ConfigUtil';
@@ -33,8 +34,8 @@ export async function requestPost<T>(param: RequestParam): Promise<T> {
   const httpRequest = http.createHttp();
   
   try {
-    await cookieStore.init();
     const storedCookie = cookieStore.getCookie();
+    hilog.info(0x0000, 'HttpUtil', 'requestPost url: %{public}s, cookie: %{public}s', url, storedCookie || '(empty)');
     
     const response = await httpRequest.request(url, {
       method: http.RequestMethod.POST,
@@ -99,8 +100,8 @@ export async function requestGet<T>(param: RequestParam): Promise<T> {
   const httpRequest = http.createHttp();
   
   try {
-    await cookieStore.init();
     const storedCookie = cookieStore.getCookie();
+    hilog.info(0x0000, 'HttpUtil', 'requestGet url: %{public}s, cookie: %{public}s', url, storedCookie || '(empty)');
     
     const response = await httpRequest.request(url, {
       method: http.RequestMethod.GET,

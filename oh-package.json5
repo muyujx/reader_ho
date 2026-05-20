@@ -5,6 +5,7 @@
     "@ohos/common": "file:./common",
     "@ohos/bookshelf": "file:./features/bookshelf",
     "@ohos/favorite": "file:./features/favorite",
+    "@ohos/recommend": "file:./features/recommend",
     "@ohos/reader": "file:./features/reader",
     "@ohos/login": "file:./features/login",
     "@ohos/history": "file:./features/history",

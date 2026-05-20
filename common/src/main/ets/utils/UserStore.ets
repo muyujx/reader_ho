@@ -12,9 +12,8 @@ export interface UserInfo {
 export class UserStore {
   private prefs: preferences.Preferences | null = null;
 
-  async init(): Promise<void> {
+  async init(context: Context): Promise<void> {
     try {
-      const context = getContext(this);
       this.prefs = await preferences.getPreferences(context, {
         name: USER_FILE_NAME
       });

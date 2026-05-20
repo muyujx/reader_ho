@@ -49,6 +49,10 @@
       "srcPath": "./features/favorite"
     },
     {
+      "name": "recommend",
+      "srcPath": "./features/recommend"
+    },
+    {
       "name": "reader",
       "srcPath": "./features/reader"
     },
