@@ -1,3 +1,8 @@
+/**
+ * 推荐页面 - 双列瀑布流展示书籍列表
+ * 使用 Repeat 组件实现虚拟滚动和组件复用，优化列表性能
+ * 数据来源与书架页面相同 (/api/book/info/search/book)，额外展示书籍描述
+ */
 import { addHost } from '@ohos/common';
 import { RecommendBookInfo, getRecommendBookList } from '../api/RecommendApi';
 import router from '@ohos.router';
@@ -16,6 +21,7 @@ export struct RecommendPage {
     this.loadData();
   }
 
+  /** 首次加载数据 */
   loadData() {
     this.isLoading = true;
     getRecommendBookList(this.currentPage, DEFAULT_PAGE_SIZE)
@@ -31,6 +37,7 @@ export struct RecommendPage {
       });
   }
 
+  /** 下拉刷新 - 重置到第一页 */
   onRefresh() {
     this.isRefreshing = true;
     this.currentPage = 1;
@@ -47,6 +54,7 @@ export struct RecommendPage {
       });
   }
 
+  /** 触底加载更多 - 追加下一页数据 */
   loadMore() {
     if (this.currentPage >= this.totalPage || this.isLoading) {
       return;
@@ -56,7 +64,7 @@ export struct RecommendPage {
       .then((result) => {
         this.currentPage++;
         this.totalPage = result.totalPage;
-        this.bookList = this.bookList.concat(result.content);
+        this.bookList = this.bookList.concat(result.content || []);
       })
       .catch((err: Error) => {
         console.error('RecommendPage loadMore error:', JSON.stringify(err));
@@ -66,65 +74,62 @@ export struct RecommendPage {
       });
   }
 
+  /** 点击卡片跳转到阅读器 */
   openBook(book: RecommendBookInfo) {
     router.pushUrl({ url: 'pages/ReaderPage', params: { bookId: book.bookId } });
   }
 
-  getCardHeight(book: RecommendBookInfo): number {
-    const descLen: number = book.description ? book.description.length : 0;
-    if (descLen > 80) {
-      return 320;
-    } else if (descLen > 40) {
-      return 280;
-    }
-    return 240;
-  }
-
+  /**
+   * 书籍卡片组件
+   * 包含封面、书名、作者、描述
+   * 高度由内容自适应，形成瀑布流效果
+   */
   @Builder
-  bookCard(book: RecommendBookInfo) {
+  bookCard(item: RecommendBookInfo) {
     Column() {
-      Image(addHost(book.coverPic))
+      Image(addHost(item.coverPic))
         .width('100%')
         .aspectRatio(0.7)
-        .borderRadius(8)
+        .borderRadius({ topLeft: 8, topRight: 8 })
         .objectFit(ImageFit.Cover)
 
-      Text(book.bookName)
-        .fontSize(14)
-        .fontWeight(FontWeight.Medium)
-        .fontColor('#333333')
-        .maxLines(1)
-        .textOverflow({ overflow: TextOverflow.Ellipsis })
-        .width('100%')
-        .margin({ top: 8 })
-
-      Text(book.author)
-        .fontSize(12)
-        .fontColor('#999999')
-        .maxLines(1)
-        .textOverflow({ overflow: TextOverflow.Ellipsis })
-        .width('100%')
-        .margin({ top: 4 })
-
-      if (book.description) {
-        Text(book.description)
-          .fontSize(12)
-          .fontColor('#666666')
-          .maxLines(3)
+      Column() {
+        Text(item.bookName)
+          .fontSize(13)
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#333333')
+          .maxLines(2)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .width('100%')
-          .margin({ top: 6 })
+
+        Text(item.author)
+          .fontSize(11)
+          .fontColor('#999999')
+          .margin({ top: 2 })
+          .width('100%')
+
+        if (item.description) {
+          Text(item.description)
+            .fontSize(11)
+            .fontColor('#666666')
+            .lineHeight(18)
+            .width('100%')
+            .margin({ top: 6 })
+        }
       }
+      .width('100%')
+      .padding({ left: 8, right: 8, top: 6, bottom: 10 })
+      .alignItems(HorizontalAlign.Start)
     }
     .width('100%')
-    .padding({ left: 8, right: 8, top: 8, bottom: 8 })
     .backgroundColor('#FFFFFF')
     .borderRadius(8)
     .onClick(() => {
-      this.openBook(book);
+      this.openBook(item);
     })
   }
 
+  /** 空数据占位 */
   @Builder
   emptyView() {
     Column() {
@@ -142,6 +147,7 @@ export struct RecommendPage {
     .justifyContent(FlexAlign.Center)
   }
 
+  /** 加载中占位 */
   @Builder
   loadingView() {
     Column() {
@@ -163,22 +169,25 @@ export struct RecommendPage {
     Column() {
       if (this.isLoading && this.bookList.length === 0) {
         this.loadingView()
-      } else if (this.bookList.length === 0) {
+      } else if (!this.bookList || this.bookList.length === 0) {
         this.emptyView()
       } else {
         Refresh({ refreshing: this.isRefreshing }) {
+          // Repeat 虚拟滚动 + WaterFlow 瀑布流布局
           WaterFlow() {
-            ForEach(this.bookList, (book: RecommendBookInfo) => {
-              FlowItem() {
-                this.bookCard(book)
-              }
-              .width('50%')
-            })
+            Repeat<RecommendBookInfo>(this.bookList)
+              .each((ri: RepeatItem<RecommendBookInfo>) => {
+                FlowItem() {
+                  this.bookCard(ri.item)
+                }
+                .width('100%')
+              })
+              .key((item: RecommendBookInfo) => item.bookId.toString())
           }
           .columnsTemplate('1fr 1fr')
-          .columnsGap(8)
-          .rowsGap(8)
-          .padding({ left: 12, right: 12, top: 8, bottom: 8 })
+          .columnsGap(6)
+          .rowsGap(6)
+          .padding({ left: 6, right: 6, top: 8, bottom: 8 })
           .width('100%')
           .height('100%')
           .onReachEnd(() => {

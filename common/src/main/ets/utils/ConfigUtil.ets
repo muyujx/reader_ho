@@ -1,5 +1,3 @@
-import { hilog } from '@kit.PerformanceAnalysisKit';
-
 let serverHost: string = '';
 
 export function getServerHost(): string {
@@ -7,7 +5,6 @@ export function getServerHost(): string {
 }
 
 export function setServerHost(host: string): void {
-  hilog.info(0x0000, 'ConfigUtil', 'setServerHost: %{public}s', host);
   serverHost = host;
 }
 
