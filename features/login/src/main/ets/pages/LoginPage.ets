@@ -204,7 +204,7 @@ export struct LoginPage {
         account: res.account
       });
       await loginStateStore.setLoginSuccess(true);
-      router.replaceUrl({ url: 'pages/TabPage' });
+      router.replaceUrl({ url: 'pages/HomePage' });
     } catch (err) {
       this.errorMessage = (err as Error).message || '登录失败，请检查账号密码';
       console.error('Login error:', JSON.stringify(err));
@@ -237,7 +237,7 @@ export struct LoginPage {
         account: res.account
       });
       await loginStateStore.setLoginSuccess(true);
-      router.replaceUrl({ url: 'pages/TabPage' });
+      router.replaceUrl({ url: 'pages/HomePage' });
     } catch (err) {
       this.errorMessage = (err as Error).message || '注册失败';
       console.error('Register error:', JSON.stringify(err));

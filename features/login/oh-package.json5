@@ -1,4 +1,5 @@
 {
+  "modelVersion": "6.0.2",
   "name": "@ohos/login",
   "version": "1.0.0",
   "description": "登录模块",

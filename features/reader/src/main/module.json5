@@ -1,0 +1,12 @@
+{
+  "module": {
+    "name": "reader",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1"
+    ],
+    "description": "$string:module_desc"
+  }
+}

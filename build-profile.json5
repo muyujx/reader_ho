@@ -45,6 +45,14 @@
       "srcPath": "./features/bookshelf"
     },
     {
+      "name": "favorite",
+      "srcPath": "./features/favorite"
+    },
+    {
+      "name": "reader",
+      "srcPath": "./features/reader"
+    },
+    {
       "name": "login",
       "srcPath": "./features/login"
     },

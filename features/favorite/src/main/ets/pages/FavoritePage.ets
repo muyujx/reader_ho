@@ -1,6 +1,6 @@
 import router from '@ohos.router';
 import { addHost } from '@ohos/common';
-import { FavoriteBookInfo, FavoriteBookList, getFavoriteBookListApi, delFavoriteApi } from '@ohos/bookshelf';
+import { FavoriteBookInfo, FavoriteBookList, getFavoriteBookListApi, delFavoriteApi } from '../api/FavoriteBookApi';
 import { window } from '@kit.ArkUI';
 
 const DEFAULT_FIRST_PAGE = 1;

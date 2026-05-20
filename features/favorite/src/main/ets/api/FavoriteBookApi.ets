@@ -1,4 +1,4 @@
-import { requestPost, requestGet, BookTag } from '@ohos/common';
+import { requestPost } from '@ohos/common';
 
 export interface FavoriteBookInfo {
   bookName: string;
@@ -18,11 +18,6 @@ export interface FavoriteBookList {
   totalPage: number;
 }
 
-interface ChangeBookTagBody {
-  bookId: number;
-  tagId: number;
-}
-
 interface FavoriteListBody {
   page: number;
   pageSize: number;
@@ -30,23 +25,6 @@ interface FavoriteListBody {
 
 interface BookIdBody {
   bookId: number;
-}
-
-export function getAllTag(): Promise<BookTag[]> {
-  return requestGet<BookTag[]>({
-    url: '/api/book/tag/get/all'
-  });
-}
-
-export function changeBookTagApi(bookId: number, tagId: number): Promise<void> {
-  const body: ChangeBookTagBody = {
-    bookId: bookId,
-    tagId: tagId
-  };
-  return requestPost<void>({
-    url: '/api/book/tag/change',
-    body: body
-  });
 }
 
 export function addFavoriteApi(bookId: number): Promise<void> {

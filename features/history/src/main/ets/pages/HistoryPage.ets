@@ -1,5 +1,5 @@
 import { BookHistory, ReadingHistoryItem, addHost, secondsToTimeStr, formatDate, getStartOfMonth, getEndOfMonth } from '@ohos/common';
-import { listReadingHistory } from '@ohos/bookshelf';
+import { listReadingHistory } from '../api/HistoryApi';
 
 interface DayReadingHistory {
   dayReadTime: number;

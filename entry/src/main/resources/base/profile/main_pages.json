@@ -1,6 +1,6 @@
 {
   "src": [
-    "pages/TabPage",
+    "pages/HomePage",
     "pages/ReaderPage"
   ]
 }

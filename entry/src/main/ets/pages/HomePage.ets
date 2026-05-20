@@ -1,5 +1,6 @@
 import { TabConstants } from '../constants/TabConstants';
-import { BookShelfPage, FavoritePage } from '@ohos/bookshelf';
+import { BookShelfPage } from '@ohos/bookshelf';
+import { FavoritePage } from '@ohos/favorite';
 import { HistoryPage } from '@ohos/history';
 import { MinePage } from '@ohos/mine';
 import { loginStateStore, userStore } from '@ohos/common';
@@ -7,7 +8,7 @@ import { checkLoginApi, LoginPage } from '@ohos/login';
 
 @Entry
 @Component
-struct TabPage {
+struct HomePage {
   @State currentTabIndex: number = 0;
   @State isLoggedIn: boolean = false;
   @State isChecking: boolean = true;

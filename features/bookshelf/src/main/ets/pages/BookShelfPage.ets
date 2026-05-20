@@ -1,9 +1,10 @@
-import { BookInfo, BookTag, BookPageResponse } from '@ohos/common';
+import { BookInfo, BookTag, BookPageResponse, addHost } from '@ohos/common';
 import { getBookInfoList } from '../api/BookApi';
-import { getAllTag, changeBookTagApi, addFavoriteApi, delFavoriteApi } from '../api/FavoriteBookApi';
-import { Tags, TagSelector } from '@ohos/bookshelf';
+import { getAllTag, changeBookTagApi } from '../api/TagApi';
+import { addFavoriteApi, delFavoriteApi } from '@ohos/favorite';
+import { Tags } from '../components/Tags';
+import { TagSelector } from '../components/TagSelector';
 import { BookShelfConstants } from '../constants/BookShelfConstants';
-import { addHost } from '@ohos/common';
 import { window } from '@kit.ArkUI';
 import router from '@ohos.router';
 

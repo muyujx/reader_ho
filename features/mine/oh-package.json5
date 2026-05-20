@@ -1,4 +1,5 @@
 {
+  "modelVersion": "6.0.2",
   "name": "@ohos/mine",
   "version": "1.0.0",
   "description": "个人中心模块",

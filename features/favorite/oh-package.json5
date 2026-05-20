@@ -1,8 +1,8 @@
 {
   "modelVersion": "6.0.2",
-  "name": "@ohos/history",
+  "name": "@ohos/favorite",
   "version": "1.0.0",
-  "description": "阅读历史模块",
+  "description": "收藏模块",
   "main": "Index.ets",
   "author": "",
   "license": "Apache-2.0",
